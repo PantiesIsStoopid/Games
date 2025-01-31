@@ -5,21 +5,21 @@ import random
 pygame.init()
 
 # Set up the screen
-WIDTH, HEIGHT = 800, 600
-WHITE = (255, 255, 255)
-GRAY = (200, 200, 200)
-BLACK = (0, 0, 0)
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
+Width, Height = 800, 600
+White = (255, 255, 255)
+Gray = (200, 200, 200)
+Black = (0, 0, 0)
+Screen = pygame.display.set_mode((Width, Height))
 pygame.display.set_caption("Minesweeper")
 
 # Game variables
-ROWS, COLS = 10, 10
-TILE_SIZE = 50
-MINE_COUNT = 10
-FONT = pygame.font.Font(None, 40)
+Rows, Cols = 10, 10
+TileSize = 50
+MineCount = 10
+Font = pygame.font.Font(None, 40)
 
 # Define colors for numbers
-NUM_COLORS = {
+NumColors = {
     1: (0, 0, 255),
     2: (0, 128, 0),
     3: (255, 0, 0),
@@ -31,177 +31,176 @@ NUM_COLORS = {
 }
 
 # Generate mines
-mines = set()
-while len(mines) < MINE_COUNT:
-    mines.add((random.randint(0, ROWS - 1), random.randint(0, COLS - 1)))
+Mines = set()
+while len(Mines) < MineCount:
+    Mines.add((random.randint(0, Rows - 1), random.randint(0, Cols - 1)))
 
 # Initialize game board
-board = [[0 for _ in range(COLS)] for _ in range(ROWS)]
-for row, col in mines:
-    board[row][col] = -1
+Board = [[0 for _ in range(Cols)] for _ in range(Rows)]
+for Row, Col in Mines:
+    Board[Row][Col] = -1
 
 # Calculate adjacent mine counts
-for row in range(ROWS):
-    for col in range(COLS):
-        if board[row][col] != -1:
-            count = sum(1 for i in range(row - 1, row + 2)
-                        for j in range(col - 1, col + 2)
-                        if (0 <= i < ROWS and 0 <= j < COLS and board[i][j] == -1))
-            board[row][col] = count
+for Row in range(Rows):
+    for Col in range(Cols):
+        if Board[Row][Col] != -1:
+            Count = sum(1 for i in range(Row - 1, Row + 2)
+                        for j in range(Col - 1, Col + 2)
+                        if (0 <= i < Rows and 0 <= j < Cols and Board[i][j] == -1))
+            Board[Row][Col] = Count
 
 # Function to reveal tiles
-def reveal(row, col):
-    if 0 <= row < ROWS and 0 <= col < COLS and not revealed[row][col]:
-        revealed[row][col] = True
-        if board[row][col] == 0:
-            for i in range(row - 1, row + 2):
-                for j in range(col - 1, col + 2):
-                    reveal(i, j)
+def Reveal(Row, Col):
+    if 0 <= Row < Rows and 0 <= Col < Cols and not Revealed[Row][Col]:
+        Revealed[Row][Col] = True
+        if Board[Row][Col] == 0:
+            for i in range(Row - 1, Row + 2):
+                for j in range(Col - 1, Col + 2):
+                    Reveal(i, j)
 
 # Function to draw game over screen and restart game
-def draw_game_over():
-    screen.fill(GRAY)
-    game_over_text = FONT.render("Game Over! Press R to restart", True, BLACK)
-    game_over_rect = game_over_text.get_rect(center=(WIDTH // 2, HEIGHT // 2))
-    screen.blit(game_over_text, game_over_rect)
+def DrawGameOver():
+    Screen.fill(Gray)
+    GameOverText = Font.render("Game Over! Press R to restart", True, Black)
+    GameOverRect = GameOverText.get_rect(center=(Width // 2, Height // 2))
+    Screen.blit(GameOverText, GameOverRect)
     pygame.display.flip()
     while True:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
+        for Event in pygame.event.get():
+            if Event.type == pygame.QUIT:
                 pygame.quit()
                 exit()
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_r:
+            if Event.type == pygame.KEYDOWN:
+                if Event.key == pygame.K_r:
                     # Restart the game
                     return True
 
 # Main game loop
-clock = pygame.time.Clock()
-revealed = [[False for _ in range(COLS)] for _ in range(ROWS)]
-flagged = [[False for _ in range(COLS)] for _ in range(ROWS)]
-game_over = False
-running = True
-while running:
-    screen.fill(GRAY)
+Clock = pygame.time.Clock()
+Revealed = [[False for _ in range(Cols)] for _ in range(Rows)]
+Flagged = [[False for _ in range(Cols)] for _ in range(Rows)]
+GameOver = False
+Running = True
+while Running:
+    Screen.fill(Gray)
 
     # Event handling
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-        elif not game_over and event.type == pygame.MOUSEBUTTONDOWN:
-            if event.button == 1:
-                x, y = event.pos
-                row, col = y // TILE_SIZE, x // TILE_SIZE
-                if (row, col) in mines:
-                    game_over = True
+    for Event in pygame.event.get():
+        if Event.type == pygame.QUIT:
+            Running = False
+        elif not GameOver and Event.type == pygame.MOUSEBUTTONDOWN:
+            if Event.button == 1:
+                X, Y = Event.pos
+                Row, Col = Y // TileSize, X // TileSize
+                if (Row, Col) in Mines:
+                    GameOver = True
                 else:
-                    reveal(row, col)
-            elif event.button == 3:
-                x, y = event.pos
-                row, col = y // TILE_SIZE, x // TILE_SIZE
-                flagged[row][col] = not flagged[row][col]
-        elif game_over and event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_r:
+                    Reveal(Row, Col)
+            elif Event.button == 3:
+                X, Y = Event.pos
+                Row, Col = Y // TileSize, X // TileSize
+                Flagged[Row][Col] = not Flagged[Row][Col]
+        elif GameOver and Event.type == pygame.KEYDOWN:
+            if Event.key == pygame.K_r:
                 # Restart the game
-                game_over = False
-                mines = set()
-                while len(mines) < MINE_COUNT:
-                    mines.add((random.randint(0, ROWS - 1), random.randint(0, COLS - 1)))
-                board = [[0 for _ in range(COLS)] for _ in range(ROWS)]
-                for row, col in mines:
-                    board[row][col] = -1
-                for row in range(ROWS):
-                    for col in range(COLS):
-                        if board[row][col] != -1:
-                            count = sum(1 for i in range(row - 1, row + 2)
-                                        for j in range(col - 1, col + 2)
-                                        if (0 <= i < ROWS and 0 <= j < COLS and board[i][j] == -1))
-                            board[row][col] = count
-                revealed = [[False for _ in range(COLS)] for _ in range(ROWS)]
-                flagged = [[False for _ in range(COLS)] for _ in range(ROWS)]
+                GameOver = False
+                Mines = set()
+                while len(Mines) < MineCount:
+                    Mines.add((random.randint(0, Rows - 1), random.randint(0, Cols - 1)))
+                Board = [[0 for _ in range(Cols)] for _ in range(Rows)]
+                for Row, Col in Mines:
+                    Board[Row][Col] = -1
+                for Row in range(Rows):
+                    for Col in range(Cols):
+                        if Board[Row][Col] != -1:
+                            Count = sum(1 for i in range(Row - 1, Row + 2)
+                                        for j in range(Col - 1, Col + 2)
+                                        if (0 <= i < Rows and 0 <= j < Cols and Board[i][j] == -1))
+                            Board[Row][Col] = Count
+                Revealed = [[False for _ in range(Cols)] for _ in range(Rows)]
+                Flagged = [[False for _ in range(Cols)] for _ in range(Rows)]
                 break
 
     # Draw tiles
-    for row in range(ROWS):
-        for col in range(COLS):
-            rect = pygame.Rect(col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE)
-            pygame.draw.rect(screen, WHITE, rect, 2)
-            if revealed[row][col]:
-                if board[row][col] == -1:
-                    pygame.draw.circle(screen, BLACK, rect.center, TILE_SIZE // 4)
-                elif board[row][col] != 0:
-                    text = FONT.render(str(board[row][col]), True, NUM_COLORS[board[row][col]])
-                    text_rect = text.get_rect(center=rect.center)
-                    screen.blit(text, text_rect)
+    for Row in range(Rows):
+        for Col in range(Cols):
+            Rect = pygame.Rect(Col * TileSize, Row * TileSize, TileSize, TileSize)
+            pygame.draw.rect(Screen, White, Rect, 2)
+            if Revealed[Row][Col]:
+                if Board[Row][Col] == -1:
+                    pygame.draw.circle(Screen, Black, Rect.center, TileSize // 4)
+                elif Board[Row][Col] != 0:
+                    Text = Font.render(str(Board[Row][Col]), True, NumColors[Board[Row][Col]])
+                    TextRect = Text.get_rect(center=Rect.center)
+                    Screen.blit(Text, TextRect)
                 else:
-                    pygame.draw.rect(screen, GRAY, rect)
-            elif flagged[row][col]:
-                pygame.draw.line(screen, BLACK, rect.topleft, rect.bottomright, 2)
-                pygame.draw.line(screen, BLACK, rect.bottomleft, rect.topright, 2)
+                    pygame.draw.rect(Screen, Gray, Rect)
+            elif Flagged[Row][Col]:
+                pygame.draw.line(Screen, Black, Rect.topleft, Rect.bottomright, 2)
+                pygame.draw.line(Screen, Black, Rect.bottomleft, Rect.topright, 2)
 
     # Check for game over
-    if game_over:
-        if draw_game_over():
-            game_over = False
-            mines = set()
-            while len(mines) < MINE_COUNT:
-                mines.add((random.randint(0, ROWS - 1), random.randint(0, COLS - 1)))
-            board = [[0 for _ in range(COLS)] for _ in range(ROWS)]
-            for row, col in mines:
-                board[row][col] = -1
-            for row in range(ROWS):
-                for row in range(ROWS):
-                    for col in range(COLS):
-                        if board[row][col] != -1:
-                            count = sum(1 for i in range(row - 1, row + 2)
-                        for j in range(col - 1, col + 2)
-                        if (0 <= i < ROWS and 0 <= j < COLS and board[i][j] == -1))
-                            board[row][col] = count
-                            revealed = [[False for _ in range(COLS)] for _ in range(ROWS)]
-                            flagged = [[False for _ in range(COLS)] for _ in range(ROWS)]
+    if GameOver:
+        if DrawGameOver():
+            GameOver = False
+            Mines = set()
+            while len(Mines) < MineCount:
+                Mines.add((random.randint(0, Rows - 1), random.randint(0, Cols - 1)))
+            Board = [[0 for _ in range(Cols)] for _ in range(Rows)]
+            for Row, Col in Mines:
+                Board[Row][Col] = -1
+            for Row in range(Rows):
+                for Row in range(Rows):
+                    for Col in range(Cols):
+                        if Board[Row][Col] != -1:
+                            Count = sum(1 for i in range(Row - 1, Row + 2)
+                        for j in range(Col - 1, Col + 2)
+                        if (0 <= i < Rows and 0 <= j < Cols and Board[i][j] == -1))
+                            Board[Row][Col] = Count
+                            Revealed = [[False for _ in range(Cols)] for _ in range(Rows)]
+                            Flagged = [[False for _ in range(Cols)] for _ in range(Rows)]
 
 
     # Draw tiles
-    for row in range(ROWS):
-        for col in range(COLS):
-            rect = pygame.Rect(col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE)
-            pygame.draw.rect(screen, WHITE, rect, 2)
-            if revealed[row][col]:
-                if board[row][col] == -1:
-                    pygame.draw.circle(screen, BLACK, rect.center, TILE_SIZE // 4)
-                elif board[row][col] != 0:
-                    text = FONT.render(str(board[row][col]), True, NUM_COLORS[board[row][col]])
-                    text_rect = text.get_rect(center=rect.center)
-                    screen.blit(text, text_rect)
+    for Row in range(Rows):
+        for Col in range(Cols):
+            Rect = pygame.Rect(Col * TileSize, Row * TileSize, TileSize, TileSize)
+            pygame.draw.rect(Screen, White, Rect, 2)
+            if Revealed[Row][Col]:
+                if Board[Row][Col] == -1:
+                    pygame.draw.circle(Screen, Black, Rect.center, TileSize // 4)
+                elif Board[Row][Col] != 0:
+                    Text = Font.render(str(Board[Row][Col]), True, NumColors[Board[Row][Col]])
+                    TextRect = Text.get_rect(center=Rect.center)
+                    Screen.blit(Text, TextRect)
                 else:
-                    pygame.draw.rect(screen, GRAY, rect)
-            elif flagged[row][col]:
-                pygame.draw.line(screen, BLACK, rect.topleft, rect.bottomright, 2)
-                pygame.draw.line(screen, BLACK, rect.bottomleft, rect.topright, 2)
+                    pygame.draw.rect(Screen, Gray, Rect)
+            elif Flagged[Row][Col]:
+                pygame.draw.line(Screen, Black, Rect.topleft, Rect.bottomright, 2)
+                pygame.draw.line(Screen, Black, Rect.bottomleft, Rect.topright, 2)
 
     # Check for game over
-    if game_over:
-        if draw_game_over():
-            game_over = False
-            mines = set()
-            while len(mines) < MINE_COUNT:
-                mines.add((random.randint(0, ROWS - 1), random.randint(0, COLS - 1)))
-            board = [[0 for _ in range(COLS)] for _ in range(ROWS)]
-            for row, col in mines:
-                board[row][col] = -1
-            for row in range(ROWS):
-                for col in range(COLS):
-                    if board[row][col] != -1:
-                        count = sum(1 for i in range(row - 1, row + 2)
-                                    for j in range(col - 1, col + 2)
-                                    if (0 <= i < ROWS and 0 <= j < COLS and board[i][j] == -1))
-                        board[row][col] = count
-            revealed = [[False for _ in range(COLS)] for _ in range(ROWS)]
+    if GameOver:
+        if DrawGameOver():
+            GameOver = False
+            Mines = set()
+            while len(Mines) < MineCount:
+                Mines.add((random.randint(0, Rows - 1), random.randint(0, Cols - 1)))
+            Board = [[0 for _ in range(Cols)] for _ in range(Rows)]
+            for Row, Col in Mines:
+                Board[Row][Col] = -1
+            for Row in range(Rows):
+                for Col in range(Cols):
+                    if Board[Row][Col] != -1:
+                        Count = sum(1 for i in range(Row - 1, Row + 2)
+                                    for j in range(Col - 1, Col + 2)
+                                    if (0 <= i < Rows and 0 <= j < Cols and Board[i][j] == -1))
+                        Board[Row][Col] = Count
+            Revealed = [[False for _ in range(Cols)] for _ in range(Rows)]
     pygame.display.flip()
-    clock.tick(60)
+    Clock.tick(60)
 
 pygame.quit()
-
 
 
 
